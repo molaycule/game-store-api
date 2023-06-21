@@ -35,25 +35,28 @@ public class InMemGamesRepository : IGamesRepository
         }
     };
 
-    public IEnumerable<Game> GetAll() => games;
+    public async Task<IEnumerable<Game>> GetAllAsync() => await Task.FromResult(games);
 
-    public Game? GetById(int id) => games.Find(game => game.Id == id);
+    public async Task<Game?> GetByIdAsync(int id) => await Task.FromResult(games.Find(game => game.Id == id));
 
-    public void Create(Game game)
+    public async Task CreateAsync(Game game)
     {
         game.Id = games.Max(game => game.Id) + 1;
         games.Add(game);
+        await Task.CompletedTask;
     }
 
-    public void Update(Game updatedGame)
+    public async Task UpdateAsync(Game updatedGame)
     {
         int index = games.FindIndex(game => game.Id == updatedGame.Id);
         games[index] = updatedGame;
+        await Task.CompletedTask;
     }
 
-    public void Delete(int id)
+    public async Task DeleteAsync(int id)
     {
         int index = games.FindIndex(game => game.Id == id);
         games.RemoveAt(index);
+        await Task.CompletedTask;
     }
 }

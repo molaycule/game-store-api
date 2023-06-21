@@ -5,6 +5,6 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRepository(builder.Configuration);
 
 var app = builder.Build();
-app.Services.InitializeDb();
+await app.Services.InitializeDbAsync();
 app.MapGamesEndpoints();
 app.Run();

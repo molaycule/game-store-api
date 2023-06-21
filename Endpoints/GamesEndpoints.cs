@@ -28,24 +28,25 @@ public static class GamesEndpoints
         var group = routes.MapGroup("/games")
                     .WithParameterValidation();
 
-        group.MapGet("/", (IGamesRepository repo) => SuccessResponse(repo.GetAll().Select(game => game.AsGameDto())));
+        group.MapGet("/", async (IGamesRepository repo) =>
+            SuccessResponse((await repo.GetAllAsync()).Select(game => game.AsGameDto())));
 
-        group.MapGet("/{id}", (IGamesRepository repo, int id) =>
+        group.MapGet("/{id}", async (IGamesRepository repo, int id) =>
         {
-            Game? game = repo.GetById(id);
+            Game? game = await repo.GetByIdAsync(id);
             return game is not null ? SuccessResponse(game) : NotFoundResponse(id);
         }).WithName(GetGameEndpointName);
 
-        group.MapPost("/", (IGamesRepository repo, CreateGameDto gameDto) =>
+        group.MapPost("/", async (IGamesRepository repo, CreateGameDto gameDto) =>
         {
             Game game = gameDto.AsGameEntity();
-            repo.Create(game);
+            await repo.CreateAsync(game);
             return CreatedResponse(game);
         });
 
-        group.MapPut("/{id}", (IGamesRepository repo, int id, UpdateGameDto updatedGameDto) =>
+        group.MapPut("/{id}", async (IGamesRepository repo, int id, UpdateGameDto updatedGameDto) =>
         {
-            Game? existingGame = repo.GetById(id);
+            Game? existingGame = await repo.GetByIdAsync(id);
 
             if (existingGame is null) return NotFoundResponse(id);
 
@@ -55,18 +56,18 @@ public static class GamesEndpoints
             existingGame.ReleaseDate = updatedGameDto.ReleaseDate;
             existingGame.ImageUrl = updatedGameDto.ImageUrl;
 
-            repo.Update(existingGame);
+            await repo.UpdateAsync(existingGame);
 
             return SuccessResponse(existingGame);
         });
 
-        group.MapDelete("/{id}", (IGamesRepository repo, int id) =>
+        group.MapDelete("/{id}", async (IGamesRepository repo, int id) =>
         {
-            Game? game = repo.GetById(id);
+            Game? game = await repo.GetByIdAsync(id);
 
             if (game is null) return NotFoundResponse(id);
 
-            repo.Delete(id);
+            await repo.DeleteAsync(id);
 
             return Results.NoContent();
         });
