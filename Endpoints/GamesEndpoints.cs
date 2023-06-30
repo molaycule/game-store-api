@@ -1,3 +1,4 @@
+using GameStore.Api.Authorization;
 using GameStore.Api.Dtos;
 using GameStore.Api.Entities;
 using GameStore.Api.Extensions;
@@ -35,14 +36,18 @@ public static class GamesEndpoints
         {
             Game? game = await repo.GetByIdAsync(id);
             return game is not null ? SuccessResponse(game) : NotFoundResponse(id);
-        }).WithName(GetGameEndpointName);
+        })
+        .WithName(GetGameEndpointName)
+        .RequireAuthorization(Policies.ReadAccess);
 
         group.MapPost("/", async (IGamesRepository repo, CreateGameDto gameDto) =>
         {
             Game game = gameDto.AsGameEntity();
             await repo.CreateAsync(game);
             return CreatedResponse(game);
-        });
+        })
+        .RequireAuthorization(Policies.WriteAccess);
+        // .RequireAuthorization(policy => policy.RequireRole("Admin")); // Role based authorization
 
         group.MapPut("/{id}", async (IGamesRepository repo, int id, UpdateGameDto updatedGameDto) =>
         {
@@ -59,7 +64,8 @@ public static class GamesEndpoints
             await repo.UpdateAsync(existingGame);
 
             return SuccessResponse(existingGame);
-        });
+        })
+        .RequireAuthorization(Policies.WriteAccess);
 
         group.MapDelete("/{id}", async (IGamesRepository repo, int id) =>
         {
@@ -70,7 +76,8 @@ public static class GamesEndpoints
             await repo.DeleteAsync(id);
 
             return Results.NoContent();
-        });
+        })
+        .RequireAuthorization(Policies.WriteAccess);
 
         return group;
     }

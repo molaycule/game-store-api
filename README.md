@@ -21,3 +21,15 @@ dotnet tool install --global dotnet-ef
 dotnet ef migrations add InitialCreate --output-dir Data/Migrations
 dotnet ef database update
 ```
+
+## Create access token for local development
+  
+```bash
+dotnet user-jwts create
+```
+
+## Print access token details for local development
+
+```bash
+dotnet user-jwts print id_here
+```
