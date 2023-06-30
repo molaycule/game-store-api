@@ -33,3 +33,8 @@ dotnet user-jwts create
 ```bash
 dotnet user-jwts print id_here
 ```
+
+## JSON Logger
+```csharp
+builder.Logging.AddJsonConsole(options => options.JsonWriterOptions = new() { Indented = true });
+```
