@@ -5,13 +5,26 @@ namespace GameStore.Api.Extensions;
 
 public static class GameExtensions
 {
-    public static GameDto AsGameDto(this Game game)
+    public static GameDtoV1 AsGameDtoV1(this Game game)
     {
-        return new GameDto(
+        return new GameDtoV1(
             game.Id,
             game.Name,
             game.Genre,
             game.Price,
+            game.ReleaseDate,
+            game.ImageUrl
+        );
+    }
+
+    public static GameDtoV2 AsGameDtoV2(this Game game)
+    {
+        return new GameDtoV2(
+            game.Id,
+            game.Name,
+            game.Genre,
+            game.Price,
+            game.Price - (game.Price * 0.3m),
             game.ReleaseDate,
             game.ImageUrl
         );

@@ -8,6 +8,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRepository(builder.Configuration);
 builder.Services.AddAuthentication().AddJwtBearer();
 builder.Services.AddGameStoreAuthorization();
+builder.Services.AddApiVersioning(options => options.AssumeDefaultVersionWhenUnspecified = true);
 
 var app = builder.Build();
 app.UseExceptionHandler(configure => configure.ErrorHandler());
