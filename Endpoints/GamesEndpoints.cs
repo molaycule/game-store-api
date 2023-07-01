@@ -2,58 +2,45 @@ using GameStore.Api.Authorization;
 using GameStore.Api.Dtos;
 using GameStore.Api.Entities;
 using GameStore.Api.Extensions;
-using GameStore.Api.Interfaces;
 using GameStore.Api.Repositories;
+using GameStore.Api.Utils;
 
 namespace GameStore.Api.Endpoints;
 
 public static class GamesEndpoints
 {
+    const string EntityName = "Game";
     const string GetGameEndpointName = "GetGame";
-
-    private static IResult SuccessResponse<T>(T data) =>
-        Results.Ok(new { status = "success", data });
-
-    private static IResult CreatedResponse<T>(T data) where T : IEntity =>
-        Results.CreatedAtRoute(GetGameEndpointName, new { id = data.Id }, new
-        {
-            status = "success",
-            data
-        });
-
-    private static IResult NotFoundResponse(int id) =>
-        Results.NotFound(new { status = "fail", message = $"Game with id {id} was not found" });
 
     public static RouteGroupBuilder MapGamesEndpoints(this IEndpointRouteBuilder routes)
     {
-        var group = routes.MapGroup("/games")
-                    .WithParameterValidation();
+        var group = routes.MapGroup("/games").WithParameterValidation();
 
-        group.MapGet("/", async (IGamesRepository repo) =>
-            SuccessResponse((await repo.GetAllAsync()).Select(game => game.AsGameDto())));
+        group.MapGet("/", async (IGamesRepository repo, ILoggerFactory loggerFactory) =>
+            Responses.Success((await repo.GetAllAsync()).Select(game => game.AsGameDto()))
+        );
 
-        group.MapGet("/{id}", async (IGamesRepository repo, int id) =>
+        group.MapGet("/{id}", async (IGamesRepository repo, int id, ILoggerFactory loggerFactory) =>
         {
             Game? game = await repo.GetByIdAsync(id);
-            return game is not null ? SuccessResponse(game) : NotFoundResponse(id);
+            return game is not null ? Responses.Success(game) : Responses.NotFound(EntityName, id);
         })
         .WithName(GetGameEndpointName)
         .RequireAuthorization(Policies.ReadAccess);
 
-        group.MapPost("/", async (IGamesRepository repo, CreateGameDto gameDto) =>
+        group.MapPost("/", async (IGamesRepository repo, CreateGameDto gameDto, ILoggerFactory loggerFactory) =>
         {
             Game game = gameDto.AsGameEntity();
             await repo.CreateAsync(game);
-            return CreatedResponse(game);
+            return Responses.Created(GetGameEndpointName, game);
         })
         .RequireAuthorization(Policies.WriteAccess);
-        // .RequireAuthorization(policy => policy.RequireRole("Admin")); // Role based authorization
 
-        group.MapPut("/{id}", async (IGamesRepository repo, int id, UpdateGameDto updatedGameDto) =>
+        group.MapPut("/{id}", async (IGamesRepository repo, int id, UpdateGameDto updatedGameDto, ILoggerFactory loggerFactory) =>
         {
             Game? existingGame = await repo.GetByIdAsync(id);
 
-            if (existingGame is null) return NotFoundResponse(id);
+            if (existingGame is null) return Responses.NotFound(EntityName, id);
 
             existingGame.Name = updatedGameDto.Name;
             existingGame.Genre = updatedGameDto.Genre;
@@ -62,19 +49,17 @@ public static class GamesEndpoints
             existingGame.ImageUrl = updatedGameDto.ImageUrl;
 
             await repo.UpdateAsync(existingGame);
-
-            return SuccessResponse(existingGame);
+            return Responses.Success(existingGame);
         })
         .RequireAuthorization(Policies.WriteAccess);
 
-        group.MapDelete("/{id}", async (IGamesRepository repo, int id) =>
+        group.MapDelete("/{id}", async (IGamesRepository repo, int id, ILoggerFactory loggerFactory) =>
         {
             Game? game = await repo.GetByIdAsync(id);
 
-            if (game is null) return NotFoundResponse(id);
+            if (game is null) return Responses.NotFound(EntityName, id);
 
             await repo.DeleteAsync(id);
-
             return Results.NoContent();
         })
         .RequireAuthorization(Policies.WriteAccess);
