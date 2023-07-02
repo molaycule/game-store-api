@@ -1,7 +1,8 @@
+using GameStore.Api.Data;
 using GameStore.Api.Repositories;
 using Microsoft.EntityFrameworkCore;
 
-namespace GameStore.Api.Data;
+namespace GameStore.Api.Extensions;
 
 public static class DataExtensions
 {

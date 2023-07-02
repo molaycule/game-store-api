@@ -1,5 +1,3 @@
-using GameStore.Api.Authorization;
-using GameStore.Api.Data;
 using GameStore.Api.Endpoints;
 using GameStore.Api.Extensions;
 using GameStore.Api.Middleware;
@@ -9,11 +7,13 @@ builder.Services.AddRepository(builder.Configuration);
 builder.Services.AddAuthentication().AddJwtBearer();
 builder.Services.AddGameStoreAuthorization();
 builder.Services.AddApiVersioning(options => options.AssumeDefaultVersionWhenUnspecified = true);
+builder.Services.AddGameStoreCors(builder.Configuration);
 
 var app = builder.Build();
+await app.Services.InitializeDbAsync();
 app.UseExceptionHandler(configure => configure.ErrorHandler());
 app.UseMiddleware<RequestTimingMiddleware>();
-await app.Services.InitializeDbAsync();
 app.UseHttpLogging();
+app.UseCors();
 app.MapGamesEndpoints();
 app.Run();

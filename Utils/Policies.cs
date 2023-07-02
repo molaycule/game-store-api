@@ -1,4 +1,4 @@
-namespace GameStore.Api.Authorization;
+namespace GameStore.Api.Utils;
 
 public static class Policies
 {

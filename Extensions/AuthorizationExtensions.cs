@@ -1,4 +1,6 @@
-namespace GameStore.Api.Authorization;
+using GameStore.Api.Utils;
+
+namespace GameStore.Api.Extensions;
 
 public static class AuthorizationExtensions
 {
