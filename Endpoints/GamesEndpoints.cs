@@ -21,9 +21,16 @@ public static class GamesEndpoints
                           .WithParameterValidation();
 
         #region GET ENDPOINTS V1
-        group.MapGet("/", async (IGamesRepository repo, ILoggerFactory loggerFactory) =>
-            Responses.Success((await repo.GetAllAsync()).Select(game => game.AsGameDtoV1()))
-        )
+        group.MapGet("/", async (
+            IGamesRepository repo,
+            ILoggerFactory loggerFactory,
+            [AsParameters] GetGamesDto request,
+            HttpContext context
+        ) =>
+        {
+            await AddPaginationToResponseHeader(repo, request, context);
+            return Responses.Success((await repo.GetAllAsync(request.PageNumber, request.PageSize)).Select(game => game.AsGameDtoV1()));
+        })
         .MapToApiVersion(1.0);
 
         group.MapGet("/{id}", async (IGamesRepository repo, int id, ILoggerFactory loggerFactory) =>
@@ -37,9 +44,16 @@ public static class GamesEndpoints
         #endregion
 
         #region GET ENDPOINTS V2
-        group.MapGet("/", async (IGamesRepository repo, ILoggerFactory loggerFactory) =>
-            Responses.Success((await repo.GetAllAsync()).Select(game => game.AsGameDtoV2()))
-        )
+        group.MapGet("/", async (
+            IGamesRepository repo,
+            ILoggerFactory loggerFactory,
+            [AsParameters] GetGamesDto request,
+            HttpContext context
+        ) =>
+        {
+            await AddPaginationToResponseHeader(repo, request, context);
+            Responses.Success((await repo.GetAllAsync(request.PageNumber, request.PageSize)).Select(game => game.AsGameDtoV2()));
+        })
         .MapToApiVersion(2.0);
 
         group.MapGet("/{id}", async (IGamesRepository repo, int id, ILoggerFactory loggerFactory) =>
@@ -92,5 +106,11 @@ public static class GamesEndpoints
         .MapToApiVersion(1.0);
 
         return group;
+    }
+
+    private static async Task AddPaginationToResponseHeader(IGamesRepository repo, GetGamesDto request, HttpContext context)
+    {
+        var totalCount = await repo.CountAsync();
+        context.Response.AddPaginationHeader(request.PageNumber, request.PageSize, totalCount);
     }
 }

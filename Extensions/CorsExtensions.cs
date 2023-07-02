@@ -10,7 +10,10 @@ public static class CorsExtensions
             {
                 var allowedOrigins = configuration.GetSection("AllowedOrigins").Get<string[]>()
                     ?? throw new InvalidOperationException("AllowedOrigins is not set");
-                policy.WithOrigins(allowedOrigins).AllowAnyHeader().AllowAnyMethod();
+                policy.WithOrigins(allowedOrigins)
+                      .AllowAnyHeader()
+                      .AllowAnyMethod()
+                      .WithExposedHeaders("X-Pagination");
             });
         });
 

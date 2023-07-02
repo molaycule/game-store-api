@@ -35,7 +35,8 @@ public class InMemGamesRepository : IGamesRepository
         }
     };
 
-    public async Task<IEnumerable<Game>> GetAllAsync() => await Task.FromResult(games);
+    public async Task<IEnumerable<Game>> GetAllAsync(int pageNumber, int pageSize) =>
+        await Task.FromResult(games.Skip((pageNumber - 1) * pageSize).Take(pageSize));
 
     public async Task<Game?> GetByIdAsync(int id) => await Task.FromResult(games.Find(game => game.Id == id));
 
@@ -59,4 +60,6 @@ public class InMemGamesRepository : IGamesRepository
         games.RemoveAt(index);
         await Task.CompletedTask;
     }
+
+    public async Task<int> CountAsync() => await Task.FromResult(games.Count);
 }

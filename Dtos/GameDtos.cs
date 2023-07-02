@@ -2,6 +2,11 @@ using System.ComponentModel.DataAnnotations;
 
 namespace GameStore.Api.Dtos;
 
+public record GetGamesDto(
+    int PageNumber = 1,
+    int PageSize = 5
+);
+
 public record GameDtoV1(
     int Id,
     string Name,
