@@ -3,6 +3,7 @@ using GameStore.Api.Entities;
 using GameStore.Api.Extensions;
 using GameStore.Api.Repositories;
 using GameStore.Api.Utils;
+using Microsoft.AspNetCore.Http.HttpResults;
 
 namespace GameStore.Api.Endpoints;
 
@@ -18,30 +19,36 @@ public static class GamesEndpoints
                           .MapGroup("/games") // "/v{version:apiVersion}/games" - url path versioning
                           .HasApiVersion(1.0)
                           .HasApiVersion(2.0)
-                          .WithParameterValidation();
+                          .WithParameterValidation()
+                          .WithOpenApi()
+                          .WithTags("Games");
 
         #region GET ENDPOINTS V1
         group.MapGet("/", async (
             IGamesRepository repo,
             ILoggerFactory loggerFactory,
             [AsParameters] GetGamesDto request,
-            HttpContext context
-        ) =>
+            HttpContext context) =>
         {
             await AddPaginationToResponseHeader(repo, request, context);
             return Responses.Success((await repo.GetAllAsync(request.PageNumber, request.PageSize, request.Filter))
                                                 .Select(game => game.AsGameDtoV1()));
         })
-        .MapToApiVersion(1.0);
+        .MapToApiVersion(1.0)
+        .WithSummary("Get all games")
+        .WithDescription("Get all available games with pagination and allow to filter them by name or genre.");
 
-        group.MapGet("/{id}", async (IGamesRepository repo, int id, ILoggerFactory loggerFactory) =>
+        group.MapGet("/{id}", async Task<Results<Ok<SuccessResponse<GameDtoV1>>, NotFound<NotFoundResponse>>> (
+            IGamesRepository repo, int id, ILoggerFactory loggerFactory) =>
         {
             Game? game = await repo.GetByIdAsync(id);
             return game is not null ? Responses.Success(game.AsGameDtoV1()) : Responses.NotFound(EntityName, id);
         })
         .WithName(GetGameV1EndpointName)
         .RequireAuthorization(Policies.ReadAccess)
-        .MapToApiVersion(1.0);
+        .MapToApiVersion(1.0)
+        .WithSummary("Get game")
+        .WithDescription("Get game by id with all details.");
         #endregion
 
         #region GET ENDPOINTS V2
@@ -49,35 +56,43 @@ public static class GamesEndpoints
             IGamesRepository repo,
             ILoggerFactory loggerFactory,
             [AsParameters] GetGamesDto request,
-            HttpContext context
-        ) =>
+            HttpContext context) =>
         {
             await AddPaginationToResponseHeader(repo, request, context);
             return Responses.Success((await repo.GetAllAsync(request.PageNumber, request.PageSize, request.Filter))
                                                 .Select(game => game.AsGameDtoV2()));
         })
-        .MapToApiVersion(2.0);
+        .MapToApiVersion(2.0)
+        .WithSummary("Get all games")
+        .WithDescription("Get all available games with pagination and allow to filter them by name or genre.");
 
-        group.MapGet("/{id}", async (IGamesRepository repo, int id, ILoggerFactory loggerFactory) =>
+        group.MapGet("/{id}", async Task<Results<Ok<SuccessResponse<GameDtoV2>>, NotFound<NotFoundResponse>>> (
+            IGamesRepository repo, int id, ILoggerFactory loggerFactory) =>
         {
             Game? game = await repo.GetByIdAsync(id);
             return game is not null ? Responses.Success(game.AsGameDtoV2()) : Responses.NotFound(EntityName, id);
         })
         .WithName(GetGameV2EndpointName)
         .RequireAuthorization(Policies.ReadAccess)
-        .MapToApiVersion(2.0);
+        .MapToApiVersion(2.0)
+        .WithSummary("Get game")
+        .WithDescription("Get game by id with all details.");
         #endregion
 
-        group.MapPost("/", async (IGamesRepository repo, CreateGameDto gameDto, ILoggerFactory loggerFactory) =>
+        group.MapPost("/", async Task<CreatedAtRoute<SuccessResponse<GameDtoV1>>> (
+            IGamesRepository repo, CreateGameDto gameDto, ILoggerFactory loggerFactory) =>
         {
             Game game = gameDto.AsGameEntity();
             await repo.CreateAsync(game);
-            return Responses.Created(GetGameV1EndpointName, game);
+            return Responses.Created(GetGameV1EndpointName, game.Id, game.AsGameDtoV1());
         })
         .RequireAuthorization(Policies.WriteAccess)
-        .MapToApiVersion(1.0);
+        .MapToApiVersion(1.0)
+        .WithSummary("Create new game")
+        .WithDescription("Create a new game with the specified properties.");
 
-        group.MapPut("/{id}", async (IGamesRepository repo, int id, UpdateGameDto updatedGameDto, ILoggerFactory loggerFactory) =>
+        group.MapPut("/{id}", async Task<Results<Ok<SuccessResponse<GameDtoV1>>, NotFound<NotFoundResponse>>> (
+            IGamesRepository repo, int id, UpdateGameDto updatedGameDto, ILoggerFactory loggerFactory) =>
         {
             Game? existingGame = await repo.GetByIdAsync(id);
 
@@ -93,19 +108,24 @@ public static class GamesEndpoints
             return Responses.Success(existingGame.AsGameDtoV1());
         })
         .RequireAuthorization(Policies.WriteAccess)
-        .MapToApiVersion(1.0);
+        .MapToApiVersion(1.0)
+        .WithSummary("Update game")
+        .WithDescription("Update game by id with the specified properties.");
 
-        group.MapDelete("/{id}", async (IGamesRepository repo, int id, ILoggerFactory loggerFactory) =>
+        group.MapDelete("/{id}", async Task<Results<NotFound<NotFoundResponse>, NoContent>> (
+            IGamesRepository repo, int id, ILoggerFactory loggerFactory) =>
         {
             Game? game = await repo.GetByIdAsync(id);
 
             if (game is null) return Responses.NotFound(EntityName, id);
 
             await repo.DeleteAsync(id);
-            return Results.NoContent();
+            return TypedResults.NoContent();
         })
         .RequireAuthorization(Policies.WriteAccess)
-        .MapToApiVersion(1.0);
+        .MapToApiVersion(1.0)
+        .WithSummary("Delete game")
+        .WithDescription("Delete game with the specified id.");
 
         return group;
     }
