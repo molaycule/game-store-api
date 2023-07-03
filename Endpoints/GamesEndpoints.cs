@@ -29,7 +29,8 @@ public static class GamesEndpoints
         ) =>
         {
             await AddPaginationToResponseHeader(repo, request, context);
-            return Responses.Success((await repo.GetAllAsync(request.PageNumber, request.PageSize)).Select(game => game.AsGameDtoV1()));
+            return Responses.Success((await repo.GetAllAsync(request.PageNumber, request.PageSize, request.Filter))
+                                                .Select(game => game.AsGameDtoV1()));
         })
         .MapToApiVersion(1.0);
 
@@ -52,7 +53,8 @@ public static class GamesEndpoints
         ) =>
         {
             await AddPaginationToResponseHeader(repo, request, context);
-            Responses.Success((await repo.GetAllAsync(request.PageNumber, request.PageSize)).Select(game => game.AsGameDtoV2()));
+            return Responses.Success((await repo.GetAllAsync(request.PageNumber, request.PageSize, request.Filter))
+                                                .Select(game => game.AsGameDtoV2()));
         })
         .MapToApiVersion(2.0);
 
@@ -110,7 +112,7 @@ public static class GamesEndpoints
 
     private static async Task AddPaginationToResponseHeader(IGamesRepository repo, GetGamesDto request, HttpContext context)
     {
-        var totalCount = await repo.CountAsync();
+        var totalCount = await repo.CountAsync(request.Filter);
         context.Response.AddPaginationHeader(request.PageNumber, request.PageSize, totalCount);
     }
 }
