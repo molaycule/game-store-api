@@ -25,7 +25,7 @@ dotnet ef database update
 ## Create access token for local development
   
 ```bash
-dotnet user-jwts create
+dotnet user-jwts create --role "Admin" --scope "games:write"
 ```
 
 ## Print access token details for local development
