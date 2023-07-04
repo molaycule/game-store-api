@@ -38,3 +38,10 @@ dotnet user-jwts print id_here
 ```csharp
 builder.Logging.AddJsonConsole(options => options.JsonWriterOptions = new() { Indented = true });
 ```
+
+## Cloudinary Configuration
+```bash
+dotnet user-secrets set "Cloudinary:CloudName" "cloud_name_here"
+dotnet user-secrets set "Cloudinary:ApiKey" "api_key_here"
+dotnet user-secrets set "Cloudinary:ApiSecret" "api_secret_here"
+```

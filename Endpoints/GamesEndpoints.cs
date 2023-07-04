@@ -38,7 +38,7 @@ public static class GamesEndpoints
         .WithSummary("Get all games")
         .WithDescription("Get all available games with pagination and allow to filter them by name or genre.");
 
-        group.MapGet("/{id}", async Task<Results<Ok<SuccessResponse<GameDtoV1>>, NotFound<NotFoundResponse>>> (
+        group.MapGet("/{id}", async Task<Results<Ok<SuccessResponse<GameDtoV1>>, NotFound<FailResponse>>> (
             IGamesRepository repo, int id, ILoggerFactory loggerFactory) =>
         {
             Game? game = await repo.GetByIdAsync(id);
@@ -66,7 +66,7 @@ public static class GamesEndpoints
         .WithSummary("Get all games")
         .WithDescription("Get all available games with pagination and allow to filter them by name or genre.");
 
-        group.MapGet("/{id}", async Task<Results<Ok<SuccessResponse<GameDtoV2>>, NotFound<NotFoundResponse>>> (
+        group.MapGet("/{id}", async Task<Results<Ok<SuccessResponse<GameDtoV2>>, NotFound<FailResponse>>> (
             IGamesRepository repo, int id, ILoggerFactory loggerFactory) =>
         {
             Game? game = await repo.GetByIdAsync(id);
@@ -91,7 +91,7 @@ public static class GamesEndpoints
         .WithSummary("Create new game")
         .WithDescription("Create a new game with the specified properties.");
 
-        group.MapPut("/{id}", async Task<Results<Ok<SuccessResponse<GameDtoV1>>, NotFound<NotFoundResponse>>> (
+        group.MapPut("/{id}", async Task<Results<Ok<SuccessResponse<GameDtoV1>>, NotFound<FailResponse>>> (
             IGamesRepository repo, int id, UpdateGameDto updatedGameDto, ILoggerFactory loggerFactory) =>
         {
             Game? existingGame = await repo.GetByIdAsync(id);
@@ -112,7 +112,7 @@ public static class GamesEndpoints
         .WithSummary("Update game")
         .WithDescription("Update game by id with the specified properties.");
 
-        group.MapDelete("/{id}", async Task<Results<NotFound<NotFoundResponse>, NoContent>> (
+        group.MapDelete("/{id}", async Task<Results<NotFound<FailResponse>, NoContent>> (
             IGamesRepository repo, int id, ILoggerFactory loggerFactory) =>
         {
             Game? game = await repo.GetByIdAsync(id);

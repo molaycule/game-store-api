@@ -1,5 +1,4 @@
 using System.Diagnostics;
-using GameStore.Api.Interfaces;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 
@@ -11,7 +10,7 @@ public class SuccessResponse<T>
     public T Data { get; set; } = default!;
 }
 
-public class NotFoundResponse
+public class FailResponse
 {
     public string Status { get; } = "fail";
     public string Message { get; set; } = default!;
@@ -25,8 +24,11 @@ public static class Responses
     public static CreatedAtRoute<SuccessResponse<T>> Created<T>(string routeName, int id, T data) =>
         TypedResults.CreatedAtRoute(new SuccessResponse<T> { Data = data }, routeName, new { id });
 
-    public static NotFound<NotFoundResponse> NotFound(string entityName, int id) =>
-        TypedResults.NotFound(new NotFoundResponse { Message = $"{entityName} with id {id} was not found" });
+    public static BadRequest<FailResponse> BadRequest(string message) =>
+        TypedResults.BadRequest(new FailResponse { Message = message });
+
+    public static NotFound<FailResponse> NotFound(string entityName, int id) =>
+        TypedResults.NotFound(new FailResponse { Message = $"{entityName} with id {id} was not found" });
 
     public static IResult InternalServerError(InternalServerErrorParams errorParams)
     {

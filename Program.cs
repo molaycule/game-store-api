@@ -3,12 +3,14 @@ using GameStore.Api.Extensions;
 using GameStore.Api.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
-builder.Services.AddRepository(builder.Configuration);
+var config = builder.Configuration;
+builder.Services.AddRepository(config);
 builder.Services.AddAuthentication().AddJwtBearer().AddJwtBearer("Auth0");
 builder.Services.AddGameStoreAuthorization();
-builder.Services.AddGameStoreCors(builder.Configuration);
+builder.Services.AddGameStoreCors(config);
 builder.Services.AddGameStoreApiVersioning();
 builder.Services.AddGameStoreSwagger();
+builder.Services.AddCloudinaryService(config);
 
 var app = builder.Build();
 await app.Services.InitializeDbAsync();
@@ -17,5 +19,6 @@ app.UseMiddleware<RequestTimingMiddleware>();
 app.UseHttpLogging();
 app.UseCors();
 app.MapGamesEndpoints();
+app.MapImagesEndpoints();
 app.UseGameStoreSwagger();
 app.Run();
