@@ -1,4 +1,16 @@
 # Game Store API
+A .NET Rest API for a game store using Minimal APIs, Entity Framework Core, and SQL Server.
+
+Features include:
+- Authentication and Authorization using JWT Bearer Tokens, OAuth2.0, OpenID Connect using Auth0
+- Repository pattern for data access
+- Microsoft SQL Server integration using Docker
+- Entity Framework Core integration for data access and migrations
+- Logging, error handling and middleware
+- API versioning
+- Pagination and search
+- API documentation using Swagger and Postman
+- Cloudinary integration for image storage
 
 ## Starting SQL Server
 
