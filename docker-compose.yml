@@ -1,0 +1,30 @@
+# do export MSSQL_SA_PASSWORD="YourStrongPassword" before running docker-compose up
+# do export USER_SECRETS_ID="UserSecretsId" before running docker-compose up (this is the same as the one in the .csproj file)
+
+version: '3.9'
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+    volumes:
+      - $APPDATA/Microsoft/UserSecrets/$USER_SECRETS_ID:/root/.microsoft/usersecrets/$USER_SECRETS_ID
+      # - $HOME/.microsoft/usersecrets/$USER_SECRETS_ID:/root/.microsoft/usersecrets/$USER_SECRETS_ID # for linux
+    ports:
+      - '5250:80'
+    depends_on:
+      - db
+  db:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    environment:
+      ACCEPT_EULA: Y
+      MSSQL_SA_PASSWORD: $MSSQL_SA_PASSWORD
+    volumes:
+      - gamestoredb:/var/opt/mssql
+    ports:
+      - '1433:1433'
+
+volumes:
+  gamestoredb:
