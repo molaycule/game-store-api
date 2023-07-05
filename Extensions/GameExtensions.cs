@@ -7,27 +7,29 @@ public static class GameExtensions
 {
     public static GameDtoV1 AsGameDtoV1(this Game game)
     {
-        return new GameDtoV1(
-            game.Id,
-            game.Name,
-            game.Genre,
-            game.Price,
-            game.ReleaseDate,
-            game.ImageUrl
-        );
+        return new GameDtoV1
+        {
+            Id = game.Id,
+            Name = game.Name,
+            Genre = game.Genre,
+            Price = game.Price,
+            ReleaseDate = game.ReleaseDate,
+            ImageUrl = game.ImageUrl
+        };
     }
 
     public static GameDtoV2 AsGameDtoV2(this Game game)
     {
-        return new GameDtoV2(
-            game.Id,
-            game.Name,
-            game.Genre,
-            game.Price,
-            game.Price - (game.Price * 0.3m),
-            game.ReleaseDate,
-            game.ImageUrl
-        );
+        return new GameDtoV2
+        {
+            Id = game.Id,
+            Name = game.Name,
+            Genre = game.Genre,
+            Price = game.Price,
+            DiscountedPrice = game.Price - (game.Price * 0.3m),
+            ReleaseDate = game.ReleaseDate,
+            ImageUrl = game.ImageUrl
+        };
     }
 
     public static Game AsGameEntity(this CreateGameDto gameDto)

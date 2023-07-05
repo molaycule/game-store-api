@@ -4,10 +4,16 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace GameStore.Api.Utils;
 
-public class SuccessResponse<T>
+public class SuccessWithDataResponse<T>
 {
     public string Status { get; } = "success";
-    public T Data { get; set; } = default!;
+    public required T Data { get; set; }
+}
+
+public class SuccessWithFieldsResponse<T>
+{
+    public string Status { get; } = "success";
+    public required T Fields { get; set; }
 }
 
 public class FailResponse
@@ -18,11 +24,14 @@ public class FailResponse
 
 public static class Responses
 {
-    public static Ok<SuccessResponse<T>> Success<T>(T data) =>
-        TypedResults.Ok(new SuccessResponse<T> { Data = data });
+    public static Ok<SuccessWithDataResponse<T>> SuccessWithData<T>(T data) =>
+        TypedResults.Ok(new SuccessWithDataResponse<T> { Data = data });
 
-    public static CreatedAtRoute<SuccessResponse<T>> Created<T>(string routeName, int id, T data) =>
-        TypedResults.CreatedAtRoute(new SuccessResponse<T> { Data = data }, routeName, new { id });
+    public static Ok<SuccessWithFieldsResponse<T>> SuccessWithFields<T>(T fields) =>
+        TypedResults.Ok(new SuccessWithFieldsResponse<T> { Fields = fields });
+
+    public static CreatedAtRoute<SuccessWithDataResponse<T>> Created<T>(string routeName, int id, T data) =>
+        TypedResults.CreatedAtRoute(new SuccessWithDataResponse<T> { Data = data }, routeName, new { id });
 
     public static BadRequest<FailResponse> BadRequest(string message) =>
         TypedResults.BadRequest(new FailResponse { Message = message });

@@ -16,7 +16,7 @@ public static class ImagesEndpoints
                           .WithOpenApi()
                           .WithTags("Images");
 
-        group.MapPost("/upload", async Task<Results<Ok<SuccessResponse<ImageUploadDto>>, BadRequest<FailResponse>>> (
+        group.MapPost("/upload", async Task<Results<Ok<SuccessWithDataResponse<ImageUploadDto>>, BadRequest<FailResponse>>> (
             ICloudinaryImageUploader uploader,
             ILoggerFactory loggerFactory,
             IFormFile file) =>
@@ -27,7 +27,7 @@ public static class ImagesEndpoints
             loggerFactory.CreateLogger("CloudinaryImageUploader")
                          .LogInformation("Image uploaded to {imageUrl}", imageUrl);
 
-            return Responses.Success(new ImageUploadDto(imageUrl));
+            return Responses.SuccessWithData(new ImageUploadDto(imageUrl));
         })
         .MapToApiVersion(1.0)
         .RequireAuthorization(Policies.WriteAccess)

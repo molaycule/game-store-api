@@ -24,25 +24,34 @@ public static class GamesEndpoints
                           .WithTags("Games");
 
         #region GET ENDPOINTS V1
-        group.MapGet("/", async (
+        group.MapGet("/", async Task<Results<Ok<SuccessWithFieldsResponse<IEnumerable<Dictionary<string, object?>>>>, Ok<SuccessWithDataResponse<IEnumerable<GameDtoV1>>>>> (
             IGamesRepository repo,
             ILoggerFactory loggerFactory,
             [AsParameters] GetGamesDto request,
+            [AsParameters] QueryFieldsDto query,
             HttpContext context) =>
         {
             await AddPaginationToResponseHeader(repo, request, context);
-            return Responses.Success((await repo.GetAllAsync(request.PageNumber, request.PageSize, request.Filter))
-                                                .Select(game => game.AsGameDtoV1()));
+            var results = (await repo.GetAllAsync(request.PageNumber, request.PageSize, request.Filter))
+                                     .Select(game => game.AsGameDtoV1());
+            return query.Fields is not null
+                ? Responses.SuccessWithFields(results.FilterList(query.Fields))
+                : Responses.SuccessWithData(results);
         })
         .MapToApiVersion(1.0)
         .WithSummary("Get all games")
         .WithDescription("Get all available games with pagination and allow to filter them by name or genre.");
 
-        group.MapGet("/{id}", async Task<Results<Ok<SuccessResponse<GameDtoV1>>, NotFound<FailResponse>>> (
-            IGamesRepository repo, int id, ILoggerFactory loggerFactory) =>
+        group.MapGet("/{id}", async Task<Results<Ok<SuccessWithFieldsResponse<Dictionary<string, object?>>>, Ok<SuccessWithDataResponse<GameDtoV1>>, NotFound<FailResponse>>> (
+            IGamesRepository repo, int id, ILoggerFactory loggerFactory, [AsParameters] QueryFieldsDto query) =>
         {
             Game? game = await repo.GetByIdAsync(id);
-            return game is not null ? Responses.Success(game.AsGameDtoV1()) : Responses.NotFound(EntityName, id);
+
+            if (game is null) return Responses.NotFound(EntityName, id);
+
+            return query.Fields is not null
+                ? Responses.SuccessWithFields(game.AsGameDtoV1().Filter(query.Fields))
+                : Responses.SuccessWithData(game.AsGameDtoV1());
         })
         .WithName(GetGameV1EndpointName)
         .RequireAuthorization(Policies.ReadAccess)
@@ -52,25 +61,34 @@ public static class GamesEndpoints
         #endregion
 
         #region GET ENDPOINTS V2
-        group.MapGet("/", async (
+        group.MapGet("/", async Task<Results<Ok<SuccessWithFieldsResponse<IEnumerable<Dictionary<string, object?>>>>, Ok<SuccessWithDataResponse<IEnumerable<GameDtoV2>>>>> (
             IGamesRepository repo,
             ILoggerFactory loggerFactory,
             [AsParameters] GetGamesDto request,
+            [AsParameters] QueryFieldsDto query,
             HttpContext context) =>
         {
             await AddPaginationToResponseHeader(repo, request, context);
-            return Responses.Success((await repo.GetAllAsync(request.PageNumber, request.PageSize, request.Filter))
-                                                .Select(game => game.AsGameDtoV2()));
+            var results = (await repo.GetAllAsync(request.PageNumber, request.PageSize, request.Filter))
+                                     .Select(game => game.AsGameDtoV2());
+            return query.Fields is not null
+                ? Responses.SuccessWithFields(results.FilterList(query.Fields))
+                : Responses.SuccessWithData(results);
         })
         .MapToApiVersion(2.0)
         .WithSummary("Get all games")
         .WithDescription("Get all available games with pagination and allow to filter them by name or genre.");
 
-        group.MapGet("/{id}", async Task<Results<Ok<SuccessResponse<GameDtoV2>>, NotFound<FailResponse>>> (
-            IGamesRepository repo, int id, ILoggerFactory loggerFactory) =>
+        group.MapGet("/{id}", async Task<Results<Ok<SuccessWithFieldsResponse<Dictionary<string, object?>>>, Ok<SuccessWithDataResponse<GameDtoV2>>, NotFound<FailResponse>>> (
+            IGamesRepository repo, int id, ILoggerFactory loggerFactory, [AsParameters] QueryFieldsDto query) =>
         {
             Game? game = await repo.GetByIdAsync(id);
-            return game is not null ? Responses.Success(game.AsGameDtoV2()) : Responses.NotFound(EntityName, id);
+
+            if (game is null) return Responses.NotFound(EntityName, id);
+
+            return query.Fields is not null
+                ? Responses.SuccessWithFields(game.AsGameDtoV2().Filter(query.Fields))
+                : Responses.SuccessWithData(game.AsGameDtoV2());
         })
         .WithName(GetGameV2EndpointName)
         .RequireAuthorization(Policies.ReadAccess)
@@ -79,7 +97,7 @@ public static class GamesEndpoints
         .WithDescription("Get game by id with all details.");
         #endregion
 
-        group.MapPost("/", async Task<CreatedAtRoute<SuccessResponse<GameDtoV1>>> (
+        group.MapPost("/", async Task<CreatedAtRoute<SuccessWithDataResponse<GameDtoV1>>> (
             IGamesRepository repo, CreateGameDto gameDto, ILoggerFactory loggerFactory) =>
         {
             Game game = gameDto.AsGameEntity();
@@ -91,7 +109,7 @@ public static class GamesEndpoints
         .WithSummary("Create new game")
         .WithDescription("Create a new game with the specified properties.");
 
-        group.MapPut("/{id}", async Task<Results<Ok<SuccessResponse<GameDtoV1>>, NotFound<FailResponse>>> (
+        group.MapPut("/{id}", async Task<Results<Ok<SuccessWithDataResponse<GameDtoV1>>, NotFound<FailResponse>>> (
             IGamesRepository repo, int id, UpdateGameDto updatedGameDto, ILoggerFactory loggerFactory) =>
         {
             Game? existingGame = await repo.GetByIdAsync(id);
@@ -105,7 +123,7 @@ public static class GamesEndpoints
             existingGame.ImageUrl = updatedGameDto.ImageUrl;
 
             await repo.UpdateAsync(existingGame);
-            return Responses.Success(existingGame.AsGameDtoV1());
+            return Responses.SuccessWithData(existingGame.AsGameDtoV1());
         })
         .RequireAuthorization(Policies.WriteAccess)
         .MapToApiVersion(1.0)
