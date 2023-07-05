@@ -12,6 +12,7 @@ Features include:
 - Field filtering
 - API documentation using Swagger and Postman
 - Cloudinary integration for image storage
+- App containerization using Docker and Docker Compose
 
 ## Postman API Documentation
 [![Run in Postman](https://run.pstmn.io/button.svg)](https://documenter.getpostman.com/view/26440641/2s93zE41DR)
