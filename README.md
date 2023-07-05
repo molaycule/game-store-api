@@ -14,7 +14,7 @@ Features include:
 - Cloudinary integration for image storage
 
 ## Postman API Documentation
-  [![Run in Postman](https://res.cloudinary.com/postman/image/upload/t_team_logo_pubdoc/v1/team/768118b36f06c94b0306958b980558e6915839447e859fe16906e29d683976f0)](https://documenter.getpostman.com/view/26440641/2s93zE41DR)
+[![Run in Postman](https://run.pstmn.io/button.svg)](https://documenter.getpostman.com/view/26440641/2s93zE41DR)
 
 ## Starting SQL Server
 
