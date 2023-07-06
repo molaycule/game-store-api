@@ -14,7 +14,7 @@ public static class ErrorHandlingExtensions
 			var exception = exceptionHandlerPathFeature?.Error;
 			var path = exceptionHandlerPathFeature?.Path;
 			var endpoint = exceptionHandlerPathFeature?.Endpoint;
-			var message = ErrorMessages.ConfigureMessage(endpoint?.DisplayName, path?.Split('/').Last());
+			var message = ErrorMessages.ConfigureMessage(endpoint?.DisplayName, path?.Split('/').LastOrDefault());
 			await Responses.InternalServerError(new(environment, logger, message, exception)).ExecuteAsync(context);
 		});
 }

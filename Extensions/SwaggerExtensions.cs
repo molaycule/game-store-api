@@ -21,12 +21,12 @@ public static class SwaggerExtensions
 			app.UseSwagger();
 			app.UseSwaggerUI(options =>
 			{
-				foreach (var description in app.DescribeApiVersions())
+				app.DescribeApiVersions().Select(description => description.GroupName).ToList().ForEach(groupName =>
 				{
-					var url = $"/swagger/{description.GroupName}/swagger.json";
-					var name = description.GroupName.ToUpperInvariant();
+					var url = $"/swagger/{groupName}/swagger.json";
+					var name = groupName.ToUpperInvariant();
 					options.SwaggerEndpoint(url, name);
-				}
+				});
 			});
 		}
 
