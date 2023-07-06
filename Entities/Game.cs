@@ -3,24 +3,24 @@ using GameStore.Api.Interfaces;
 
 namespace GameStore.Api.Entities;
 
-public class Game: IEntity
+public class Game : IEntity
 {
-    public int Id { get; set; }
+	public int Id { get; set; }
 
-    [Required]
-    [StringLength(50)]
-    public required string Name { get; set; }
+	[Required]
+	[StringLength(50)]
+	public required string Name { get; set; }
 
-    [Required]
-    [StringLength(20)]
-    public required string Genre { get; set; }
+	[Required]
+	[StringLength(20)]
+	public required string Genre { get; set; }
 
-    [Range(1, 100)]
-    public decimal Price { get; set; }
+	[Range(1, 100)]
+	public decimal Price { get; set; }
 
-    public DateTime ReleaseDate { get; set; }
+	public DateTime ReleaseDate { get; set; }
 
-    [Url]
-    [StringLength(100)]
-    public required string ImageUrl { get; set; }
+	[Url]
+	[StringLength(100)]
+	public required string ImageUrl { get; set; }
 }

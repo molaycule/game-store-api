@@ -5,28 +5,28 @@ namespace GameStore.Api.Utils;
 
 public class ScopeTransformation : IClaimsTransformation
 {
-    private const string scopeClaimName = "scope";
-    
-    public Task<ClaimsPrincipal> TransformAsync(ClaimsPrincipal principal)
-    {
-        var scopeClaim = principal.FindFirst(scopeClaimName);
+	private const string scopeClaimName = "scope";
 
-        if (scopeClaim is null)
-        {
-            return Task.FromResult(principal);
-        }
+	public Task<ClaimsPrincipal> TransformAsync(ClaimsPrincipal principal)
+	{
+		var scopeClaim = principal.FindFirst(scopeClaimName);
 
-        var scopes = scopeClaim.Value.Split(' ');
-        var originalIdentity = principal.Identity as ClaimsIdentity;
-        var identity = new ClaimsIdentity(originalIdentity);
-        var originalScopeClaim = identity.Claims.FirstOrDefault(claim => claim.Type == scopeClaimName);
+		if (scopeClaim is null)
+		{
+			return Task.FromResult(principal);
+		}
 
-        if (originalScopeClaim is not null)
-        {
-            identity.RemoveClaim(originalScopeClaim);
-        }
+		var scopes = scopeClaim.Value.Split(' ');
+		var originalIdentity = principal.Identity as ClaimsIdentity;
+		var identity = new ClaimsIdentity(originalIdentity);
+		var originalScopeClaim = identity.Claims.FirstOrDefault(claim => claim.Type == scopeClaimName);
 
-        identity.AddClaims(scopes.Select(scope => new Claim(scopeClaimName, scope)));
-        return Task.FromResult(new ClaimsPrincipal(identity));
-    }
+		if (originalScopeClaim is not null)
+		{
+			identity.RemoveClaim(originalScopeClaim);
+		}
+
+		identity.AddClaims(scopes.Select(scope => new Claim(scopeClaimName, scope)));
+		return Task.FromResult(new ClaimsPrincipal(identity));
+	}
 }

@@ -12,8 +12,6 @@ public class GameStoreContext : DbContext
 
     public DbSet<Game> Games => Set<Game>();
 
-    protected override void OnModelCreating(ModelBuilder modelBuilder)
-    {
-        modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
-    }
+	protected override void OnModelCreating(ModelBuilder modelBuilder) =>
+		modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
 }
